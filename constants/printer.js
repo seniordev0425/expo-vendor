@@ -1,0 +1,14 @@
+const PRINTER_TYPE = {
+  THERMAL_PRINTER: "THERMAL_PRINTER",
+  STAR: "STAR",
+};
+
+const PRINTER_FUNCTION = {
+  RECEIPT: "RECEIPT",
+  CHEF_NOTE: "CHEF_NOTE",
+};
+
+export default {
+  PRINTER_FUNCTION,
+  PRINTER_TYPE,
+};
