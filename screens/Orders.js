@@ -17,6 +17,7 @@ import moment from "moment";
 import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
 import useHandlePrinters from "../utils/hooks/useHandlePrinter";
+import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 
 function Orders({ navigation }) {
   //Location
@@ -32,8 +33,14 @@ function Orders({ navigation }) {
 
   const LOCATION_UPDATE_TASK = "background-location-update";
 
+  const [hasPrinter, setHasPrinter] = useState(false);
   const printers = useRef([]);
-  const onScanPrinters = (data) => (printers.current = data);
+  const onScanPrinters = (data) => {
+    if (!!data?.length) {
+      setHasPrinter(true);
+    }
+    printers.current = data;
+  };
 
   const { scanPrinters, handleReceiptPrinting } = useHandlePrinters({
     onScanPrinters,
@@ -121,7 +128,11 @@ function Orders({ navigation }) {
       const now = moment();
       const orderTime = moment(lastOrder.created_at);
       const diff = now.diff(orderTime, "second");
-      return lastOrder;
+      if (diff < 10) {
+        return lastOrder;
+      } else {
+        return null;
+      }
     } else {
       return null;
     }
@@ -163,9 +174,10 @@ function Orders({ navigation }) {
       //Vendor get orders
       API.getVendorOrders(
         (ordersResponse) => {
-          console.log("ordersResponse", JSON.stringify(ordersResponse));
           const newOrder = getNewOrder(ordersResponse);
-          handleReceiptPrinting(printers.current, newOrder);
+          if (newOrder) {
+            handleReceiptPrinting(printers.current, newOrder);
+          }
           setOrders(ordersResponse);
           setOrdersLoaded(true);
           setRefreshing(false);
@@ -195,6 +207,15 @@ function Orders({ navigation }) {
   useEffect(() => {
     refreshOrders();
     scanPrinters();
+
+    const enableKeepAwake = async () => {
+      await activateKeepAwakeAsync();
+    };
+    enableKeepAwake();
+
+    return () => {
+      deactivateKeepAwake();
+    };
   }, []);
 
   const onRefresh = React.useCallback(() => {
@@ -281,7 +302,7 @@ function Orders({ navigation }) {
 
   function renderOrderItem(item) {
     return (
-      <Block row={true} card flex style={cardContainer}>
+      <Block key={item.id} row={true} card flex style={cardContainer}>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate("OrderDetails", { order: item });
@@ -307,6 +328,17 @@ function Orders({ navigation }) {
               ).toFixed(2)}
               {config.currencySign}
             </Text>
+            {hasPrinter && (
+              <TouchableOpacity
+                style={styles.receiptContainer}
+                activeOpacity={0.7}
+                onPress={() => handleReceiptPrinting(printers.current, item)}
+              >
+                <Text bold style={styles.cardTitle}>
+                  Print Receipt
+                </Text>
+              </TouchableOpacity>
+            )}
           </Block>
         </TouchableOpacity>
       </Block>
@@ -426,5 +458,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOpacity: 0.1,
     elevation: 2,
+  },
+  receiptContainer: {
+    padding: 3,
   },
 });

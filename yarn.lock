@@ -6737,7 +6737,7 @@ react-native-screens@~3.22.0:
 
 "react-native-star-prnt@https://github.com/seniordev0425/react-native-star-prnt.git":
   version "1.0.0"
-  resolved "https://github.com/seniordev0425/react-native-star-prnt.git#e59e1b4c579bf773fb2cfba356d7bbfd0525f9a5"
+  resolved "https://github.com/seniordev0425/react-native-star-prnt.git#5f68fbafc53a6383fbd087cc64b87d7ac868ce48"
 
 react-native-toast-message@^2.1.5:
   version "2.1.5"

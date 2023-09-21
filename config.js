@@ -1,9 +1,10 @@
 //Main data
 exports.domain = "https://app.menumaster.io";
-exports.APP_NAME = "Appp name";
-exports.LOGO = "https://foodtiger.site/default/logo.png";
-exports.LOGOWidth = 487;
-exports.LOGOHeight = 144;
+exports.APP_NAME = "Menumaster";
+exports.LOGO =
+  "https://menumaster.io/wp-content/uploads/2022/10/MenuMaster_Logo.png";
+exports.LOGOWidth = 614;
+exports.LOGOHeight = 66;
 
 //Currency
 exports.currency = "USD";
