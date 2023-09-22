@@ -1,6 +1,9 @@
 import * as _ from "lodash";
 import moment from "moment";
 import { isEmpty, groupBy, sumBy, find } from "lodash";
+import { Images } from "../../constants";
+import { Asset } from "expo-asset";
+import config from "../../config";
 
 const EMULATIONS = {
   mPOP: "StarPRNT",
@@ -236,13 +239,13 @@ export const makeBarcode = (code, width, height, position) => {
   };
 };
 
-export const makeBitmap = (logo, position) => {
+export const makeBitmap = (logo) => {
   return {
     appendBitmap: logo,
     diffusion: true,
-    width: 200,
+    width: 300,
     bothScale: true,
-    alignment: "Center",
+    absolutePosition: 150,
   };
 };
 
@@ -273,22 +276,18 @@ export const generateStarReceiptCommands = (order) => {
           STAR_PRINT_FONTS.FONT_MEDIUM
         )
       );
-      commands = commands.concat(makeBr(1, STAR_PRINT_FONTS.FONT_MEDIUM));
       commands = commands.concat(
         makeLine(
           `Client name: ${order.client?.name}`,
           STAR_PRINT_FONTS.FONT_MEDIUM
         )
       );
-      commands = commands.concat(makeBr(1, STAR_PRINT_FONTS.FONT_MEDIUM));
       commands = commands.concat(
         makeLine(`Client phone: ${order.phone}`, STAR_PRINT_FONTS.FONT_MEDIUM)
       );
-      commands = commands.concat(makeBr(1, STAR_PRINT_FONTS.FONT_MEDIUM));
       commands = commands.concat(
         makeLine(`Time: ${order.time_formated}`, STAR_PRINT_FONTS.FONT_MEDIUM)
       );
-      commands = commands.concat(makeBr(1, STAR_PRINT_FONTS.FONT_MEDIUM));
     }
     if (order.delivery_method === 3) {
       // Table order
@@ -300,12 +299,15 @@ export const generateStarReceiptCommands = (order) => {
             STAR_PRINT_FONTS.FONT_MEDIUM
           )
         );
-        commands = commands.concat(makeBr(1, STAR_PRINT_FONTS.FONT_MEDIUM));
         commands = commands.concat(
           makeLine(`Table: ${tableAssigned.name}`, STAR_PRINT_FONTS.FONT_MEDIUM)
         );
-        commands = commands.concat(makeBr(1, STAR_PRINT_FONTS.FONT_MEDIUM));
       }
+    }
+    if (order.comment?.length > 1) {
+      commands = commands.concat(
+        makeLine(`Comment: ${order.comment}`, STAR_PRINT_FONTS.FONT_MEDIUM)
+      );
     }
     commands = commands.concat(
       makeLeftRightCenterLine(
@@ -316,6 +318,7 @@ export const generateStarReceiptCommands = (order) => {
         65
       )
     );
+    commands = commands.concat(makeSeparateLine(STAR_PRINT_FONTS.FONT_MEDIUM));
     order.items.forEach((item) => {
       commands = commands.concat(
         makeLeftRightCenterLine(
@@ -351,11 +354,13 @@ export const generateStarReceiptCommands = (order) => {
       )
     );
     commands = commands.concat(makeBr(1, STAR_PRINT_FONTS.FONT_MEDIUM));
-    // commands = commands.concat(
-    //   makeBitmap(
-    //     "https://menumaster.io/wp-content/uploads/2022/10/MenuMaster_Logo.png"
-    //   )
-    // );
+    commands = commands.concat(
+      makeCenterLine("Powered by", STAR_PRINT_FONTS.FONT_LARGE)
+    );
+    commands = commands.concat(
+      makeCenterLine(config.APP_NAME.toUpperCase(), STAR_PRINT_FONTS.FONT_LARGE)
+    );
+
     commands.push({ appendCutPaper: "PartialCutWithFeed" });
   } catch (e) {
     console.log("error", e);
